@@ -1,0 +1,71 @@
+# hydra
+defaults:
+  - _self_
+  - override hydra/job_logging: none
+  - override hydra/hydra_logging: none
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job:
+    chdir: false
+
+# experiment name
+experiment_name: "default" # 사용자가 실험마다 변경
+
+# Random seed
+seed: 42
+
+# Project paths
+paths:
+  result_root: "/mmfs1/project/wangj/hl545/sunspot/results"  
+  data:
+    train_dir: "/mmfs1/project/wangj/hl545/sunspot/dataset/train"
+    val_dir: "/mmfs1/project/wangj/hl545/sunspot/dataset/validation"
+    test_dir: "/mmfs1/project/wangj/hl545/sunspot/dataset/test"
+
+# Data normalization
+normalization:
+  dpd_mean: 0.0
+  dpd_std: 1.0
+  mag_mean: 0.0
+  mag_std: 1.0
+
+# Model architecture
+model:
+  generator:
+    input_nc: 1
+    output_nc: 1
+    ngf: 64
+    n_downsampling: 4
+    n_blocks: 9
+  discriminator:
+    input_nc: 2  # concatenated input + target
+    ndf: 64
+    n_layers: 3
+    num_D: 3  # number of discriminators in multiscale
+
+# Training hyperparameters
+training:
+  batch_size: 4
+  num_epochs: 200
+  lr_g: 0.0002
+  lr_d: 0.0002
+  beta1: 0.5
+  beta2: 0.999
+
+# Loss weights
+loss:
+  lambda_feat: 10.0  # feature matching loss weight
+
+# Checkpoint and sampling
+checkpoint:
+  save_freq: 10  # save checkpoint every N epochs
+  report_freq: 100 # 
+  # sample_freq: 1  # save sample images every N epochs
+
+# Dataloader
+dataloader:
+  num_workers: 4
+  shuffle: true
