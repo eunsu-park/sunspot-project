@@ -1,8 +1,8 @@
 #!/bin/bash -l
 
 #SBATCH --job-name=SUNSPOT_TRAIN
-#SBATCH --output=/Users/eunsupark/ap/renew/train_outs/%x.%j.out
-#SBATCH --error=/Users/eunsupark/ap/renew/train_errs/%x.%j.err
+#SBATCH --output=/Users/eunsupark/sunspot/train_outs/%x.%j.out
+#SBATCH --error=/Users/eunsupark/sunspot/train_errs/%x.%j.err
 #SBATCH --partition=gpu
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
