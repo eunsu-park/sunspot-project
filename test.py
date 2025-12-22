@@ -6,7 +6,7 @@ from omegaconf import DictConfig
 
 from networks import GlobalGenerator
 from pipeline import get_dataloaders
-from utils import set_seed, load_checkpoint, save_comparison_images, compute_psnr, compute_ssim
+from utils import set_seed, load_checkpoint, save_comparison_images, compute_psnr, compute_ssim, save_npz
 
 
 def test_step(dpd, mag, generator, device):
@@ -42,7 +42,7 @@ def test_step(dpd, mag, generator, device):
     }
 
 
-@hydra.main(config_path=".", config_name="config", version_base=None)
+@hydra.main(config_path="./configs", config_name="config", version_base=None)
 def main(cfg: DictConfig):
     # 1. Set random seed for reproducibility
     set_seed(cfg.seed)
@@ -53,7 +53,10 @@ def main(cfg: DictConfig):
     print(f"Using device: {device}")
     
     # 3. Create test results directory
-    test_dir = f"{cfg.paths.result_dir}/test_results"
+    result_dir = f"{cfg.paths.result_root}/{cfg.experiment_name}"
+    test_root = f"{result_dir}/test"
+    os.makedirs(test_root, exist_ok=True)
+    test_dir = f"{test_root}/epoch_{cfg.test.epoch:04d}"
     os.makedirs(test_dir, exist_ok=True)
     print(f"Test results will be saved to {test_dir}")
     
@@ -72,18 +75,12 @@ def main(cfg: DictConfig):
     ).to(device)
     
     # 6. Load checkpoint
-    checkpoint_path = f"{cfg.paths.result_dir}/checkpoints/best_model.pth"
-    
+    checkpoint_dir = f"{result_dir}/checkpoints"
+    checkpoint_path = f"{checkpoint_dir}/checkpoint_epoch_{cfg.validation.epoch:04d}.pth"
+
     if not os.path.exists(checkpoint_path):
-        print(f"Warning: best_model.pth not found. Looking for latest checkpoint...")
-        # Find latest checkpoint
-        checkpoint_dir = f"{cfg.paths.result_dir}/checkpoints"
-        checkpoints = sorted([f for f in os.listdir(checkpoint_dir) if f.startswith('checkpoint_epoch_')])
-        if checkpoints:
-            checkpoint_path = os.path.join(checkpoint_dir, checkpoints[-1])
-        else:
-            print(f"Error: No checkpoints found in {checkpoint_dir}")
-            return
+        print(f"Error: No checkpoints found {checkpoint_path}")
+        return
     
     print(f"Loading checkpoint from {checkpoint_path}...")
     epoch = load_checkpoint(checkpoint_path, generator, None, None, None)
@@ -94,6 +91,9 @@ def main(cfg: DictConfig):
     
     all_psnr = []
     all_ssim = []
+
+    file_list = test_loader.dataset.file_list
+    file_idx = 0
     
     for batch_idx, batch in enumerate(test_loader):
         # Perform test step
@@ -108,29 +108,23 @@ def main(cfg: DictConfig):
         all_ssim.append(results['ssim'])
         
         # Save comparison image
-        save_path = f"{test_dir}/test_sample_{batch_idx}.png"
+        file_name = os.path.splitext(os.path.basename(file_list[file_idx]))[0]
         save_comparison_images(
-            results['dpd'][0],
-            results['mag'][0],
-            results['generated'][0],
-            save_path,
+            results['dpd'],
+            results['mag']*100.,
+            results['generated']*100.,
+            f"{test_dir}/{file_name}.png",
             epoch,
             batch_idx
         )
-        
-        # Save as npz
-        dpd_np = results['dpd'][0].cpu().numpy()
-        mag_np = results['mag'][0].cpu().numpy()
-        generated_np = results['generated'][0].cpu().numpy()
-        
-        npz_path = f"{test_dir}/test_sample_{batch_idx}.npz"
-        np.savez(
-            npz_path,
-            dpd=dpd_np,
-            mag=mag_np,
-            generated=generated_np
+        save_npz(
+            results['dpd'],
+            results['mag']*100.,
+            results['generated']*100.,
+            f"{test_dir}/{file_name}.npz"
         )
-        
+        file_idx += 1
+    
         # Print progress
         print(f"Sample {batch_idx + 1}/{len(test_loader)}: "
               f"PSNR={results['psnr']:.2f} dB, SSIM={results['ssim']:.4f}")

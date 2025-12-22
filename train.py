@@ -222,7 +222,7 @@ def main(cfg: DictConfig):
                 
                 # Save up to 4 samples
                 for i in range(min(4, sample_dpd.size(0))):
-                    save_path = f"{sample_dir}/train_epoch_{epoch}_sample_{i}.png"
+                    save_path = f"{sample_dir}/train_epoch_{epoch:04d}_sample_{i}.png"
                     save_comparison_images(
                         sample_dpd[i],
                         sample_mag[i],
@@ -235,7 +235,7 @@ def main(cfg: DictConfig):
         
         # Save checkpoint periodically
         if epoch % cfg.checkpoint.save_freq == 0:
-            save_path = f"{checkpoint_dir}/checkpoint_epoch_{epoch}.pth"
+            save_path = f"{checkpoint_dir}/checkpoint_epoch_{epoch:04d}.pth"
             save_checkpoint(
                 epoch, 
                 generator, 

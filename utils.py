@@ -37,7 +37,7 @@ def save_checkpoint(epoch, generator, discriminator, opt_g, opt_d, save_path, is
 
 def load_checkpoint(checkpoint_path, generator, discriminator=None, opt_g=None, opt_d=None):
     """Load model checkpoint"""
-    checkpoint = torch.load(checkpoint_path)
+    checkpoint = torch.load(checkpoint_path, map_location=torch.device('cpu'))
     
     generator.load_state_dict(checkpoint['generator_state_dict'])
     
@@ -106,6 +106,25 @@ def save_comparison_images(input_img, target_img, generated_img, save_path, epoc
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.savefig(save_path, dpi=100, bbox_inches='tight')
     plt.close()
+
+
+def save_npz(input_img, target_img, generated_img, save_path):
+    """
+    Save npz file: input | target | generated
+    
+    Args:
+        input_img: (C, H, W) tensor
+        target_img: (C, H, W) tensor
+        generated_img: (C, H, W) tensor
+        save_path: path to save the npz file
+    """
+    # Convert to numpy and squeeze channel dimension
+    input_np = input_img.detach().cpu().squeeze().numpy()
+    target_np = target_img.detach().cpu().squeeze().numpy()
+    generated_np = generated_img.detach().cpu().squeeze().numpy()
+
+    np.savez(save_path, inp=input_np, tar=target_np,
+             gen=generated_np)
 
 
 def compute_psnr(img1, img2):

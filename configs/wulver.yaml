@@ -69,3 +69,11 @@ checkpoint:
 dataloader:
   num_workers: 4
   shuffle: true
+
+# Validation
+validation:
+  epoch: 200
+
+# Test
+test:
+  epoch: 200

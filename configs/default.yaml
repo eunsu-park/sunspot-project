@@ -19,7 +19,7 @@ seed: 42
 
 # Project paths
 paths:
-  result_root: "/opt/projects/sunspot/03_results"  
+  result_root: "/opt/projects/sunspot/02_results"  
   data:
     train_dir: "/opt/projects/sunspot/01_dataset/train"
     val_dir: "/opt/projects/sunspot/01_dataset/validation"
@@ -69,3 +69,11 @@ checkpoint:
 dataloader:
   num_workers: 4
   shuffle: true
+
+# Validation
+validation:
+  epoch: 200
+
+# Test
+test:
+  epoch: 200

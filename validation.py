@@ -6,7 +6,7 @@ from omegaconf import DictConfig
 
 from networks import GlobalGenerator, MultiscaleDiscriminator
 from pipeline import get_dataloaders
-from utils import set_seed, load_checkpoint, save_comparison_images, compute_psnr, compute_ssim
+from utils import set_seed, load_checkpoint, save_comparison_images, compute_psnr, compute_ssim, save_npz
 
 
 def validation_step(dpd, mag, generator, discriminator, criterionFeat, device):
@@ -63,7 +63,7 @@ def validation_step(dpd, mag, generator, discriminator, criterionFeat, device):
     }
 
 
-@hydra.main(config_path=".", config_name="config", version_base=None)
+@hydra.main(config_path="./configs", config_name="config", version_base=None)
 def main(cfg: DictConfig):
     # 1. Set random seed for reproducibility
     set_seed(cfg.seed)
@@ -74,9 +74,13 @@ def main(cfg: DictConfig):
     print(f"Using device: {device}")
     
     # 3. Create validation results directory
-    val_dir = f"{cfg.paths.result_dir}/validation_results"
-    os.makedirs(val_dir, exist_ok=True)
-    print(f"Validation results will be saved to {val_dir}")
+
+    result_dir = f"{cfg.paths.result_root}/{cfg.experiment_name}"
+    validation_root = f"{result_dir}/validation"
+    os.makedirs(validation_root, exist_ok=True)
+    validation_dir = f"{validation_root}/epoch_{cfg.validation.epoch:04d}"
+    os.makedirs(validation_dir, exist_ok=True)
+    print(f"Validation results will be saved to {validation_dir}")
     
     # 4. Load validation dataloader
     print("\nLoading validation dataset...")
@@ -100,18 +104,12 @@ def main(cfg: DictConfig):
     ).to(device)
     
     # 6. Load checkpoint
-    checkpoint_path = f"{cfg.paths.result_dir}/checkpoints/best_model.pth"
-    
+    checkpoint_dir = f"{result_dir}/checkpoints"
+    checkpoint_path = f"{checkpoint_dir}/checkpoint_epoch_{cfg.validation.epoch:04d}.pth"
+
     if not os.path.exists(checkpoint_path):
-        print(f"Warning: best_model.pth not found. Looking for latest checkpoint...")
-        # Find latest checkpoint
-        checkpoint_dir = f"{cfg.paths.result_dir}/checkpoints"
-        checkpoints = sorted([f for f in os.listdir(checkpoint_dir) if f.startswith('checkpoint_epoch_')])
-        if checkpoints:
-            checkpoint_path = os.path.join(checkpoint_dir, checkpoints[-1])
-        else:
-            print(f"Error: No checkpoints found in {checkpoint_dir}")
-            return
+        print(f"Error: No checkpoints found {checkpoint_path}")
+        return
     
     print(f"Loading checkpoint from {checkpoint_path}...")
     epoch = load_checkpoint(checkpoint_path, generator, discriminator, None, None)
@@ -127,7 +125,10 @@ def main(cfg: DictConfig):
     all_losses = []
     all_psnr = []
     all_ssim = []
-    
+
+    file_list = val_loader.dataset.file_list
+    file_idx = 0
+
     for batch_idx, batch in enumerate(val_loader):
         # Perform validation step
         results = validation_step(
@@ -138,22 +139,30 @@ def main(cfg: DictConfig):
             criterionFeat,
             device
         )
-        
+
         all_losses.append(results['loss_feat'])
         all_psnr.extend(results['psnr'])
         all_ssim.extend(results['ssim'])
         
         # Save all validation samples
         for i in range(results['dpd'].size(0)):
-            save_path = f"{val_dir}/val_batch_{batch_idx}_sample_{i}.png"
+            file_name = os.path.splitext(os.path.basename(file_list[file_idx]))[0]
+            # save_path = f"{validation_dir}/val_batch_{batch_idx}_sample_{i}.png"
             save_comparison_images(
                 results['dpd'][i],
-                results['mag'][i],
-                results['generated'][i],
-                save_path,
+                results['mag'][i]*100.,
+                results['generated'][i]*100.,
+                f"{validation_dir}/{file_name}.png",
                 epoch,
                 f"{batch_idx}_{i}"
             )
+            save_npz(
+                results['dpd'][i],
+                results['mag'][i]*100.,
+                results['generated'][i]*100.,
+                f"{validation_dir}/{file_name}.npz"
+            )
+            file_idx += 1
         
         # Print progress
         batch_psnr = sum(results['psnr']) / len(results['psnr'])
@@ -175,11 +184,11 @@ def main(cfg: DictConfig):
     print(f"  Average Loss: {avg_loss:.4f}")
     print(f"  Average PSNR: {avg_psnr:.2f} dB")
     print(f"  Average SSIM: {avg_ssim:.4f}")
-    print(f"  Results saved to: {val_dir}")
+    print(f"  Results saved to: {validation_dir}")
     print(f"{'='*80}\n")
     
     # Save summary to text file
-    summary_path = f"{val_dir}/validation_summary.txt"
+    summary_path = f"{validation_dir}/validation_summary.txt"
     with open(summary_path, 'w') as f:
         f.write(f"Validation Results Summary\n")
         f.write(f"{'='*80}\n")

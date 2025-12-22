@@ -48,7 +48,7 @@ class NPZDataset(Dataset):
         # mag_norm = self._normalize(mag, 
         #                            self.norm_config.mag_mean, 
         #                            self.norm_config.mag_std)
-        mag_norm = np.clip(mag, -100, 100)/100.
+        mag_norm = np.clip(mag/3000., -1, 1)
 
         
         # Convert to tensor and add channel dimension
