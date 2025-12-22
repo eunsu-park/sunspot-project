@@ -8,7 +8,7 @@
 #SBATCH --ntasks-per-node=8
 #SBATCH --gres=gpu:1
 #SBATCH --mem=8000M
-#SBATCH --qos=standard
+#SBATCH --qos=high_wangj
 #SBATCH --account=wangj
 #SBATCH --time=3-00:00:00
 
