@@ -150,16 +150,16 @@ def main(cfg: DictConfig):
             # save_path = f"{validation_dir}/val_batch_{batch_idx}_sample_{i}.png"
             save_comparison_images(
                 results['dpd'][i],
-                results['mag'][i]*100.,
-                results['generated'][i]*100.,
+                results['mag'][i]*3000.,
+                results['generated'][i]*3000.,
                 f"{validation_dir}/{file_name}.png",
                 epoch,
                 f"{batch_idx}_{i}"
             )
             save_npz(
                 results['dpd'][i],
-                results['mag'][i]*100.,
-                results['generated'][i]*100.,
+                results['mag'][i]*3000.,
+                results['generated'][i]*3000.,
                 f"{validation_dir}/{file_name}.npz"
             )
             file_idx += 1

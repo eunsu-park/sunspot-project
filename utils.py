@@ -82,19 +82,19 @@ def save_comparison_images(input_img, target_img, generated_img, save_path, epoc
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     
     # Plot input
-    im0 = axes[0].imshow(input_np, cmap='gray')
+    im0 = axes[0].imshow(input_np, cmap='gray', vmin=-1, vmax=1)
     axes[0].set_title('Input (DPD)')
     axes[0].axis('off')
     plt.colorbar(im0, ax=axes[0], fraction=0.046, pad=0.04)
     
     # Plot target
-    im1 = axes[1].imshow(target_np, cmap='gray')
+    im1 = axes[1].imshow(target_np, cmap='gray', vmin=-100, vmax=100)
     axes[1].set_title('Target (MAG)')
     axes[1].axis('off')
     plt.colorbar(im1, ax=axes[1], fraction=0.046, pad=0.04)
     
     # Plot generated
-    im2 = axes[2].imshow(generated_np, cmap='gray')
+    im2 = axes[2].imshow(generated_np, cmap='gray', vmin=-100, vmax=100)
     axes[2].set_title('Generated (MAG)')
     axes[2].axis('off')
     plt.colorbar(im2, ax=axes[2], fraction=0.046, pad=0.04)

@@ -12,7 +12,7 @@ hydra:
     chdir: false
 
 # experiment name
-experiment_name: "default" # 사용자가 실험마다 변경
+experiment_name: "default_3000" # 사용자가 실험마다 변경
 
 # Random seed
 seed: 42
