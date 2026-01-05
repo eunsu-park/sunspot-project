@@ -111,16 +111,16 @@ def main(cfg: DictConfig):
         file_name = os.path.splitext(os.path.basename(file_list[file_idx]))[0]
         save_comparison_images(
             results['dpd'],
-            results['mag']*100.,
-            results['generated']*100.,
+            results['mag']*3000.,
+            results['generated']*3000.,
             f"{test_dir}/{file_name}.png",
             epoch,
             batch_idx
         )
         save_npz(
             results['dpd'],
-            results['mag']*100.,
-            results['generated']*100.,
+            results['mag']*3000.,
+            results['generated']*3000.,
             f"{test_dir}/{file_name}.npz"
         )
         file_idx += 1

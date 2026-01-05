@@ -19,11 +19,11 @@ seed: 42
 
 # Project paths
 paths:
-  result_root: "/opt/projects/sunspot/02_results"  
+  result_root: "/opt/projects/10_Harim/02_SunSpot/02_Result"  
   data:
-    train_dir: "/opt/projects/sunspot/01_dataset/train"
-    val_dir: "/opt/projects/sunspot/01_dataset/validation"
-    test_dir: "/opt/projects/sunspot/01_dataset/test"
+    train_dir: "/opt/projects/10_Harim/02_SunSpot/01_Dataset/train"
+    val_dir: "/opt/projects/10_Harim/02_SunSpot/01_Dataset/validation"
+    test_dir: "/opt/projects/10_Harim/02_SunSpot/01_Dataset/test"
 
 # Data normalization
 normalization:
