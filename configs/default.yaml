@@ -24,6 +24,7 @@ paths:
     train_dir: "/opt/projects/10_Harim/02_SunSpot/01_Dataset/train"
     val_dir: "/opt/projects/10_Harim/02_SunSpot/01_Dataset/validation"
     test_dir: "/opt/projects/10_Harim/02_SunSpot/01_Dataset/test"
+    carrington_dir: "/opt/projects/10_Harim/02_SunSpot/01_Dataset/carrington"
 
 # Data normalization
 normalization:
@@ -76,4 +77,7 @@ validation:
 
 # Test
 test:
+  epoch: 200
+
+carrington:
   epoch: 200

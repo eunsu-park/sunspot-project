@@ -77,3 +77,6 @@ validation:
 # Test
 test:
   epoch: 200
+
+carrington:
+  epoch: 200
